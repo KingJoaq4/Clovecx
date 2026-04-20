@@ -8,174 +8,192 @@
 </head>
 <body>
 
-    <div class="card">
-        <div class="user-menu-container">
-            <div class="user-icon" onclick="window.toggleMenu()">
-                <img id="userLogo" src="logo.png" alt="Logo">
-            </div>
-            <div id="dropdownMenu" class="dropdown-content">
-                <a href="#" id="authLink" onclick="window.gestionarSesion()">Iniciar Sesión</a>
-            </div>
+    <div class="user-menu-container">
+        <div class="user-icon" onclick="window.toggleMenu(event)">
+            <img id="userLogo" src="logo.png" alt="Logo">
         </div>
+        <div id="dropdownMenu" class="dropdown-content">
+            <a href="#" id="authLink" onclick="window.gestionarSesion()">Iniciar Sesión</a>
+        </div>
+    </div>
 
+    <div class="card">
         <h1 id="mainTitle">𝒞𝓁𝑜𝓋𝑒𝒸𝓍</h1>
         <p id="status">● Desconectado</p>
-        
+
         <div id="login-seccion">
-            <div style="margin: 80px 0;">
-                <p style="color: #ffffff; font-size: 2rem; font-weight: bold; margin-bottom: 20px;">¡Bienvenido!</p>
-                <p style="color: #b3b3b3; font-size: 1.3rem; line-height: 1.8;">
-                    Inicia sesión con Google para acceder a tu música en <span style="color: var(--sp-green);">Clovecx</span>.
-                </p>
+            <div class="welcome-box">
+                <p>Bienvenido a la experiencia Premium</p>
+                <button class="google-btn" onclick="window.gestionarSesion()">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G">
+                    Conectar con Google
+                </button>
             </div>
         </div>
 
         <div id="reproductor-seccion" style="display: none;">
-            <div class="song-info">
-                <span id="songTitle">Selecciona una canción</span>
+            <div class="player-header">
+                <div class="album-art">
+                    <img id="trackImg" src="logo.png" alt="Cover">
+                </div>
+                <div class="track-info">
+                    <h2 id="songTitle">CANCIÓN</h2>
+                    <p id="artistName">ARTISTA</p>
+                </div>
             </div>
 
-            <audio id="player"></audio>
+            <audio id="player" crossorigin="anonymous"></audio>
 
-            <div class="custom-player">
+            <div class="controls-container">
+                <button class="nav-btn" onclick="window.anterior()">⏮</button>
+                <button id="playBtn" class="play-main" onclick="window.togglePlay()">▶</button>
+                <button class="nav-btn" onclick="window.siguiente()">⏭</button>
+            </div>
+
+            <div class="progress-section">
                 <div class="progress-container" onclick="window.seek(event)">
                     <div id="progressBar" class="progress-bar"></div>
                 </div>
-                
-                <div class="time-info">
+                <div class="time-labels">
                     <span id="currentTime">0:00</span>
                     <span id="duration">0:00</span>
                 </div>
-                
-                <div class="controls">
-                    <button class="nav-btn" onclick="window.anterior()">⏮</button>
-                    <button id="playBtn" class="play-btn" onclick="window.togglePlay()">▶</button>
-                    <button class="nav-btn" onclick="window.siguiente()">⏭</button>
-                </div>
             </div>
 
-            <div class="playlist-container">
-                <h3>Tu Biblioteca</h3>
+            <div class="playlist-wrapper">
                 <ul id="playlist"></ul>
             </div>
         </div>
     </div>
 
     <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { 
-        getAuth, 
-        signInWithPopup, 
-        GoogleAuthProvider, 
-        signOut, 
-        onAuthStateChanged,
-        setPersistence,
-        browserLocalPersistence 
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCbiGHKNnfEiHUpN-J8-hgS5bcbyPmr5RI",
-        authDomain: "spotify-clove.firebaseapp.com",
-        projectId: "spotify-clove",
-        storageBucket: "spotify-clove.firebasestorage.app",
-        messagingSenderId: "905403820285",
-        appId: "1:905403820285:web:c6f3e72abbcaca4febf694"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyCbiGHKNnfEiHUpN-J8-hgS5bcbyPmr5RI",
+            authDomain: "spotify-clove.firebaseapp.com",
+            projectId: "spotify-clove",
+            storageBucket: "spotify-clove.firebasestorage.app",
+            messagingSenderId: "905403820285",
+            appId: "1:905403820285:web:c6f3e72abbcaca4febf694"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+        setPersistence(auth, browserSessionPersistence);
 
-    // Aseguramos que la sesión se guarde en el navegador
-    setPersistence(auth, browserLocalPersistence);
+        const canciones = [
+            { titulo: "M.A.I", artista: "Milo J", url: "M.A.I.mp3", img: "cover1.png", color: "#00f2ff" },
+            { titulo: "Ferxxo 151", artista: "Feid", url: "Ferxxo151.mp3", img: "cover2.png", color: "#1DB954" },
+            { titulo: "Columbia", artista: "Quevedo", url: "Columbia.mp3", img: "cover3.png", color: "#3498db" },
+            { titulo: "Cantante", artista: "Kenny B", url: "Cantante.mp3", img: "cover4.png", color: "#bc13fe" }
+        ];
 
-    const canciones = [
-        { titulo: "M.A.I / Milo J.", url: "M.A.I.mp3", color: "#1DB954" },
-        { titulo: "Ferxxo 151 / Feid", url: "Ferxxo151.mp3", color: "#3498db" },
-        { titulo: "Columbia / Quevedo", url: "Columbia.mp3", color: "#e74c3c" },
-        { titulo: "Cantante / Kenny B", url: "Cantante.mp3", color: "#f1c40f" }
-    ];
-
-    let indiceActual = 0;
-    let logueado = false;
-
-    // EL MONITOR: Este es el que manda. Si detecta al usuario, cambia la pantalla.
-    onAuthStateChanged(auth, (user) => {
-        const loginSec = document.getElementById('login-seccion');
-        const playerSec = document.getElementById('reproductor-seccion');
-        const statusTxt = document.getElementById('status');
-        const authLink = document.getElementById('authLink');
-        const userImg = document.getElementById('userLogo');
-
-        if (user) {
-            console.log("Usuario logueado:", user.displayName);
-            logueado = true;
-            userImg.src = user.photoURL || 'logo.jpg';
-            statusTxt.innerText = "● En Línea";
-            statusTxt.style.color = "#1DB954";
-            authLink.innerText = "Cerrar Sesión";
-            loginSec.style.display = "none";
-            playerSec.style.display = "block";
-            window.cargarCancion(0);
-        } else {
-            console.log("No hay usuario");
-            logueado = false;
-            userImg.src = 'logo.jpg';
-            statusTxt.innerText = "● Desconectado";
-            statusTxt.style.color = "#555";
-            authLink.innerText = "Iniciar Sesión";
-            loginSec.style.display = "block";
-            playerSec.style.display = "none";
-        }
-    });
-
-    window.toggleMenu = () => document.getElementById("dropdownMenu").classList.toggle("show");
-
-    window.gestionarSesion = async () => {
-        if (!logueado) {
-            try {
-                // Cambiamos a Popup para ver el error en tiempo real
-                await signInWithPopup(auth, provider);
-            } catch (error) {
-                console.error("Error de Login:", error.code);
-                alert("Error: " + error.code);
-            }
-        } else {
-            await signOut(auth);
-            window.toggleMenu();
-        }
-    };
-
-    window.cargarCancion = (index) => {
+        let indiceActual = 0;
+        let logueado = false;
         const player = document.getElementById('player');
-        indiceActual = index;
-        player.src = canciones[index].url;
-        document.getElementById('songTitle').innerText = canciones[index].titulo;
-        document.documentElement.style.setProperty('--sp-green', canciones[index].color);
-        player.play().catch(e => console.log("Auto-play bloqueado por el navegador"));
-        document.getElementById('playBtn').innerText = "⏸";
-        actualizarLista();
-    };
 
-    // ... (Mantén tus funciones de togglePlay, siguiente, anterior, seek y formatTime)
-    window.togglePlay = () => {
-        const p = document.getElementById('player');
-        if (p.paused) { p.play(); document.getElementById('playBtn').innerText = "⏸"; }
-        else { p.pause(); document.getElementById('playBtn').innerText = "▶"; }
-    };
-    window.siguiente = () => { indiceActual = (indiceActual + 1) % canciones.length; window.cargarCancion(indiceActual); };
-    window.anterior = () => { indiceActual = (indiceActual - 1 + canciones.length) % canciones.length; window.cargarCancion(indiceActual); };
-    function actualizarLista() {
-        const list = document.getElementById('playlist');
-        list.innerHTML = "";
-        canciones.forEach((c, i) => {
-            const li = document.createElement('li');
-            li.className = `playlist-item ${i === indiceActual ? 'active' : ''}`;
-            li.innerHTML = `<span>${c.titulo}</span>`;
-            li.onclick = () => window.cargarCancion(i);
-            list.appendChild(li);
+        onAuthStateChanged(auth, (user) => {
+            const loginSec = document.getElementById('login-seccion');
+            const playerSec = document.getElementById('reproductor-seccion');
+            const statusTxt = document.getElementById('status');
+            const userImg = document.getElementById('userLogo');
+            const authLink = document.getElementById('authLink');
+
+            if (user) {
+                logueado = true;
+                authLink.innerText = "Cerrar Sesión";
+                userImg.src = user.photoURL || 'logo.png';
+                statusTxt.innerText = "● En Línea";
+                statusTxt.style.color = "var(--accent)";
+                loginSec.style.display = "none";
+                playerSec.style.display = "block";
+                actualizarLista();
+            } else {
+                logueado = false;
+                authLink.innerText = "Iniciar Sesión";
+                userImg.src = 'logo.png';
+                statusTxt.innerText = "● Desconectado";
+                statusTxt.style.color = "#666";
+                loginSec.style.display = "block";
+                playerSec.style.display = "none";
+                player.pause();
+            }
         });
-    }
-</script>
+
+        window.toggleMenu = (e) => {
+            if(e) e.stopPropagation();
+            document.getElementById("dropdownMenu").classList.toggle("show");
+        };
+
+        window.gestionarSesion = async () => {
+            if (!logueado) {
+                try { await signInWithPopup(auth, provider); } catch (e) { console.error(e); }
+            } else {
+                await signOut(auth);
+                window.location.reload();
+            }
+        };
+
+        window.cargarCancion = (i) => {
+            indiceActual = i;
+            const c = canciones[i];
+            player.pause();
+            player.src = c.url;
+            player.load(); // Forzar carga del archivo
+            
+            document.getElementById('songTitle').innerText = c.titulo;
+            document.getElementById('artistName').innerText = c.artista;
+            document.getElementById('trackImg').src = c.img;
+            document.documentElement.style.setProperty('--accent', c.color);
+            
+            player.play().catch(err => console.log("Esperando interacción..."));
+            document.getElementById('playBtn').innerText = "⏸";
+            actualizarLista();
+        };
+
+        window.togglePlay = () => {
+            if (player.paused) { player.play(); document.getElementById('playBtn').innerText = "⏸"; }
+            else { player.pause(); document.getElementById('playBtn').innerText = "▶"; }
+        };
+
+        window.siguiente = () => window.cargarCancion((indiceActual + 1) % canciones.length);
+        window.anterior = () => window.cargarCancion((indiceActual - 1 + canciones.length) % canciones.length);
+
+        window.seek = (e) => {
+            const rect = document.querySelector('.progress-container').getBoundingClientRect();
+            player.currentTime = ((e.clientX - rect.left) / rect.width) * player.duration;
+        };
+
+        player.ontimeupdate = () => {
+            if (player.duration) {
+                const pct = (player.currentTime / player.duration) * 100;
+                document.getElementById('progressBar').style.width = pct + "%";
+                document.getElementById('currentTime').innerText = formatTime(player.currentTime);
+                document.getElementById('duration').innerText = formatTime(player.duration);
+            }
+        };
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+            return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+        }
+
+        function actualizarLista() {
+            const list = document.getElementById('playlist');
+            list.innerHTML = "";
+            canciones.forEach((c, i) => {
+                const li = document.createElement('li');
+                li.className = `playlist-item ${i === indiceActual ? 'active' : ''}`;
+                li.innerHTML = `<strong>${c.titulo}</strong><br><small>${c.artista}</small>`;
+                li.onclick = () => window.cargarCancion(i);
+                list.appendChild(li);
+            });
+        }
+        
+        window.onclick = () => document.getElementById("dropdownMenu").classList.remove("show");
+    </script>
 </body>
 </html>
