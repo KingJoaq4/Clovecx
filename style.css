@@ -36,50 +36,51 @@ body::before {
     text-align: center;
 }
 
-.google-btn {
-    background: white;
-    color: #333;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 30px;
+/* ESTILOS DEL VOLUMEN */
+.volume-container {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin: 20px auto;
+    margin: 15px 0;
+    font-size: 0.9rem;
+}
+
+#volumeSlider {
+    -webkit-appearance: none;
+    width: 120px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    outline: none;
     cursor: pointer;
-    font-weight: bold;
 }
 
-.user-menu-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 999;
-}
-
-.user-icon {
-    width: 50px;
-    height: 50px;
+#volumeSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
     border-radius: 50%;
-    border: 2px solid var(--accent);
-    overflow: hidden;
+    box-shadow: 0 0 10px var(--accent);
     cursor: pointer;
 }
 
+/* RESTO DE ESTILOS MANTENIDOS */
+.google-btn {
+    background: white; color: #333; border: none; padding: 12px 25px; border-radius: 30px;
+    display: flex; align-items: center; justify-content: center; gap: 10px; margin: 20px auto;
+    cursor: pointer; font-weight: bold;
+}
+
+.user-menu-container { position: fixed; top: 20px; right: 20px; z-index: 999; }
+.user-icon { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--accent); overflow: hidden; cursor: pointer; }
 #userLogo { width: 100%; height: 100%; object-fit: cover; }
 
 .dropdown-content {
-    display: none;
-    position: absolute;
-    right: 0;
-    background: #111;
-    border-radius: 10px;
-    border: 1px solid var(--accent);
-    margin-top: 10px;
-    min-width: 150px;
+    display: none; position: absolute; right: 0; background: #111; border-radius: 10px;
+    border: 1px solid var(--accent); margin-top: 10px; min-width: 150px;
 }
-
 .dropdown-content.show { display: block; }
 .dropdown-content a { color: white; padding: 12px; display: block; text-decoration: none; font-size: 0.9rem; }
 
@@ -88,12 +89,11 @@ body::before {
 .album-art img { width: 100%; height: 100%; object-fit: cover; }
 
 .play-main {
-    width: 60px; height: 60px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: none; font-size: 1.5rem;
-    cursor: pointer; box-shadow: 0 0 15px var(--accent);
+    width: 60px; height: 60px; border-radius: 50%; background: var(--accent);
+    border: none; font-size: 1.5rem; cursor: pointer; box-shadow: 0 0 15px var(--accent);
 }
+
+.nav-btn { background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; opacity: 0.8; }
 
 .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; cursor: pointer; margin-top: 20px;}
 .progress-bar { height: 100%; background: var(--accent); width: 0%; border-radius: 10px; transition: width 0.1s linear; }
@@ -101,17 +101,5 @@ body::before {
 
 .playlist-wrapper { margin-top: 20px; max-height: 150px; overflow-y: auto; }
 .playlist-wrapper::-webkit-scrollbar { display: none; }
-.playlist-item {
-    padding: 10px;
-    background: rgba(255,255,255,0.05);
-    margin-bottom: 5px;
-    border-radius: 10px;
-    cursor: pointer;
-    text-align: left;
-}
-
-.playlist-item.active {
-    background: rgba(0, 242, 255, 0.15) !important;
-    border-left: 4px solid var(--accent);
-    color: var(--accent);
-}
+.playlist-item { padding: 10px; background: rgba(255,255,255,0.05); margin-bottom: 5px; border-radius: 10px; cursor: pointer; text-align: left; }
+.playlist-item.active { background: rgba(0, 242, 255, 0.15) !important; border-left: 4px solid var(--accent); color: var(--accent); }
