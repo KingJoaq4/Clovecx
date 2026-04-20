@@ -37,8 +37,8 @@
                     <img id="trackImg" src="logo.png" alt="Cover">
                 </div>
                 <div class="track-info">
-                    <h2 id="songTitle">CANCIÓN</h2>
-                    <p id="artistName">ARTISTA</p>
+                    <h2 id="songTitle">M.A.I</h2>
+                    <p id="artistName">Milo J</p>
                 </div>
             </div>
 
@@ -48,6 +48,12 @@
                 <button class="nav-btn" onclick="window.anterior()">⏮</button>
                 <button id="playBtn" class="play-main" onclick="window.togglePlay()">▶</button>
                 <button class="nav-btn" onclick="window.siguiente()">⏭</button>
+            </div>
+
+            <div class="volume-container">
+                <span>🔈</span>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1" oninput="window.setVolume(this.value)">
+                <span>🔊</span>
             </div>
 
             <div class="progress-section">
@@ -105,7 +111,7 @@
             if (user) {
                 logueado = true;
                 authLink.innerText = "Cerrar Sesión";
-                userImg.src = user.photoURL || 'logo.png';
+                userImg.src = user.photoURL || 'edited-image.jpg';
                 statusTxt.innerText = "● En Línea";
                 statusTxt.style.color = "var(--accent)";
                 loginSec.style.display = "none";
@@ -114,7 +120,7 @@
             } else {
                 logueado = false;
                 authLink.innerText = "Iniciar Sesión";
-                userImg.src = 'logo.png';
+                userImg.src = 'edited-image.jpg';
                 statusTxt.innerText = "● Desconectado";
                 statusTxt.style.color = "#666";
                 loginSec.style.display = "block";
@@ -137,12 +143,17 @@
             }
         };
 
+        // FUNCIÓN DE VOLUMEN
+        window.setVolume = (val) => {
+            player.volume = val;
+        };
+
         window.cargarCancion = (i) => {
             indiceActual = i;
             const c = canciones[i];
             player.pause();
             player.src = c.url;
-            player.load(); // Forzar carga del archivo
+            player.load();
             
             document.getElementById('songTitle').innerText = c.titulo;
             document.getElementById('artistName').innerText = c.artista;
