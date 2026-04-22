@@ -1,9 +1,9 @@
-        <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>𝒞𝓁𝑜𝓋𝑒𝒸𝓍 - Premium</title>
+    <title>𝒞𝓁𝑜𝓋𝑒𝒸𝓍 - Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,60 +17,75 @@
         </div>
     </div>
 
-    <div class="card">
-        <h1 id="mainTitle">𝒞𝓁𝑜𝓋𝑒𝒸𝓍</h1>
-        <p id="status">● Desconectado</p>
-
-        <div id="login-seccion">
-            <div class="welcome-box">
-                <p>Bienvenido a la experiencia Premium</p>
-                <button class="google-btn" onclick="window.gestionarSesion()">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G">
-                    Conectar con Google
-                </button>
-            </div>
+    <div id="login-seccion" class="auth-overlay">
+        <div class="login-card">
+            <h1>𝒞𝓁𝑜𝓋𝑒𝒸𝓍</h1>
+            <p>Conéctate para gestionar tus álbumes</p>
+            <button class="google-btn" onclick="window.gestionarSesion()">
+                <img src="fondo.png" alt="G">
+                Conectar con Google
+            </button>
         </div>
+    </div>
 
-        <div id="reproductor-seccion" style="display: none;">
-            <div class="player-header">
-                <div class="album-art">
-                    <img id="trackImg" src="logo.png" alt="Cover">
-                </div>
-                <div class="track-info">
-                    <h2 id="songTitle">Canción</h2>
-                    <p id="artistName">Cantante</p>
+    <div id="reproductor-seccion" class="dashboard-layout" style="display: none;">
+        
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>BIBLIOTECA</h3>
+                <button class="add-album-btn" onclick="window.crearAlbum()">+ Nuevo Álbum</button>
+            </div>
+            <ul id="listaAlbumes" class="album-list">
+                <li class="active" onclick="window.cambiarAlbum('Todas')">📁 Todas las canciones</li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <header class="content-header">
+                <h2 id="nombreAlbumActual">Todas las canciones</h2>
+                <div id="status">● En Línea</div>
+            </header>
+            <div class="table-header">
+                <span># TÍTULO</span>
+                <span>ARTISTA</span>
+                <span>ACCIONES</span>
+            </div>
+            <ul id="playlist" class="song-list"></ul>
+        </main>
+
+        <footer class="player-bar">
+            <div class="track-info-mini">
+                <img id="trackImg" src="logo.png" alt="Cover">
+                <div>
+                    <b id="songTitle">Selecciona una canción</b>
+                    <p id="artistName">---</p>
                 </div>
             </div>
 
-            <audio id="player" crossorigin="anonymous"></audio>
-
-            <div class="controls-container">
-                <button class="nav-btn" onclick="window.anterior()">⏮</button>
-                <button id="playBtn" class="play-main" onclick="window.togglePlay()">▶</button>
-                <button class="nav-btn" onclick="window.siguiente()">⏭</button>
-            </div>
-
-            <div class="volume-container">
-                <span>🔈</span>
-                <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1" oninput="window.setVolume(this.value)">
-                <span>🔊</span>
-            </div>
-
-            <div class="progress-section">
-                <div class="progress-container" onclick="window.seek(event)">
-                    <div id="progressBar" class="progress-bar"></div>
+            <div class="player-center">
+                <div class="playback-controls">
+                    <button onclick="window.anterior()">⏮</button>
+                    <button id="playBtn" class="main-play" onclick="window.togglePlay()">▶</button>
+                    <button onclick="window.siguiente()">⏭</button>
                 </div>
-                <div class="time-labels">
+                <div class="progress-box">
                     <span id="currentTime">0:00</span>
+                    <div class="bar-container" onclick="window.seek(event)">
+                        <div id="progressBar" class="bar-fill"></div>
+                    </div>
                     <span id="duration">0:00</span>
                 </div>
             </div>
 
-            <div class="playlist-wrapper">
-                <ul id="playlist"></ul>
+            <div class="player-right">
+                <span>🔈</span>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1" oninput="window.setVolume(this.value)">
+                <span>🔊</span>
             </div>
-        </div>
+        </footer>
     </div>
+
+    <audio id="player" crossorigin="anonymous"></audio>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -90,77 +105,119 @@
         const provider = new GoogleAuthProvider();
         setPersistence(auth, browserSessionPersistence);
 
-        const canciones = [
-            { titulo: "M.A.I", artista: "Milo J", url: "M.A.I.mp3", img: "cover1.png", color: "#00f2ff" },
-            { titulo: "Ferxxo 151", artista: "Feid", url: "Ferxxo151.mp3", img: "cover2.png", color: "#1DB954" },
-            { titulo: "Columbia", artista: "Quevedo", url: "Columbia.mp3", img: "cover3.png", color: "#3498db" },
-            { titulo: "Cantante", artista: "Kenny B", url: "Cantante.mp3", img: "cover4.png", color: "#bc13fe" }
+        // DATOS
+        const cancionesBase = [
+            { titulo: "M.A.I", artista: "Milo J", url: "M.A.I.mp3", img: "cover1.png" },
+            { titulo: "Ferxxo 151", artista: "Feid", url: "Ferxxo151.mp3", img: "cover2.png" },
+            { titulo: "Columbia", artista: "Quevedo", url: "Columbia.mp3", img: "cover3.png" },
+            { titulo: "Cantante", artista: "Kenny B", url: "Cantante.mp3", img: "cover4.png" }
         ];
 
+        let albumes = { "Favoritos": [] };
+        let albumActual = "Todas";
         let indiceActual = 0;
         let logueado = false;
         const player = document.getElementById('player');
 
+        // AUTENTICACIÓN
         onAuthStateChanged(auth, (user) => {
             const loginSec = document.getElementById('login-seccion');
             const playerSec = document.getElementById('reproductor-seccion');
-            const statusTxt = document.getElementById('status');
-            const userImg = document.getElementById('userLogo');
-            const authLink = document.getElementById('authLink');
-
             if (user) {
                 logueado = true;
-                authLink.innerText = "Cerrar Sesión";
-                userImg.src = user.photoURL || 'edited-image.jpg';
-                statusTxt.innerText = "● En Línea";
-                statusTxt.style.color = "var(--accent)";
+                document.getElementById('userLogo').src = user.photoURL || 'edited-image.jpg';
+                document.getElementById('authLink').innerText = "Cerrar Sesión";
                 loginSec.style.display = "none";
-                playerSec.style.display = "block";
+                playerSec.style.display = "grid";
+                actualizarSidebar();
                 actualizarLista();
             } else {
                 logueado = false;
-                authLink.innerText = "Iniciar Sesión";
-                userImg.src = 'edited-image.jpg';
-                statusTxt.innerText = "● Desconectado";
-                statusTxt.style.color = "#666";
-                loginSec.style.display = "block";
+                document.getElementById('userLogo').src = 'logo.png';
+                document.getElementById('authLink').innerText = "Iniciar Sesión";
+                loginSec.style.display = "flex";
                 playerSec.style.display = "none";
-                player.pause();
             }
         });
 
-        window.toggleMenu = (e) => {
-            if(e) e.stopPropagation();
-            document.getElementById("dropdownMenu").classList.toggle("show");
+        window.gestionarSesion = async () => {
+            if (!logueado) await signInWithPopup(auth, provider);
+            else { await signOut(auth); window.location.reload(); }
         };
 
-        window.gestionarSesion = async () => {
-            if (!logueado) {
-                try { await signInWithPopup(auth, provider); } catch (e) { console.error(e); }
-            } else {
-                await signOut(auth);
-                window.location.reload();
+        // LÓGICA DE ÁLBUMES
+        window.crearAlbum = () => {
+            const nombre = prompt("Nombre del nuevo álbum:");
+            if(nombre && !albumes[nombre]) {
+                albumes[nombre] = [];
+                actualizarSidebar();
             }
         };
 
-        // FUNCIÓN DE VOLUMEN
-        window.setVolume = (val) => {
-            player.volume = val;
+        window.cambiarAlbum = (nom) => {
+            albumActual = nom;
+            document.getElementById('nombreAlbumActual').innerText = nom;
+            actualizarSidebar();
+            actualizarLista();
         };
 
+        window.agregarAAlbum = (i, e) => {
+            e.stopPropagation();
+            const nom = prompt("¿A qué álbum añadir? (" + Object.keys(albumes).join(", ") + ")");
+            if(albumes[nom]) {
+                albumes[nom].push(cancionesBase[i]);
+                alert("Añadida con éxito");
+            } else {
+                alert("El álbum no existe");
+            }
+        };
+
+        function actualizarSidebar() {
+            const lista = document.getElementById('listaAlbumes');
+            lista.innerHTML = `<li class="${albumActual === 'Todas' ? 'active' : ''}" onclick="window.cambiarAlbum('Todas')">📁 Todas las canciones</li>`;
+            Object.keys(albumes).forEach(nom => {
+                lista.innerHTML += `<li class="${albumActual === nom ? 'active' : ''}" onclick="window.cambiarAlbum('${nom}')">💿 ${nom}</li>`;
+            });
+        }
+
+        function actualizarLista() {
+            const list = document.getElementById('playlist');
+            list.innerHTML = "";
+            const listaAMostrar = albumActual === "Todas" ? cancionesBase : albumes[albumActual];
+            
+            listaAMostrar.forEach((c, i) => {
+                const li = document.createElement('li');
+                li.className = `song-row ${i === indiceActual ? 'playing' : ''}`;
+                li.innerHTML = `
+                    <div class="song-main">
+                        <span class="num">${i+1}</span>
+                        <div class="song-titles">
+                            <b>${c.titulo}</b>
+                            <small>${c.artista}</small>
+                        </div>
+                    </div>
+                    <span>${c.artista}</span>
+                    <button class="btn-add" onclick="window.agregarAAlbum(${i}, event)">+ Añadir</button>
+                `;
+                li.onclick = () => window.cargarCancion(i);
+                list.appendChild(li);
+            });
+        }
+
+        // REPRODUCTOR
         window.cargarCancion = (i) => {
+            const listaAMostrar = albumActual === "Todas" ? cancionesBase : albumes[albumActual];
+            if(!listaAMostrar[i]) return;
             indiceActual = i;
-            const c = canciones[i];
-            player.pause();
+            const c = listaAMostrar[i];
+            
             player.src = c.url;
             player.load();
-            
             document.getElementById('songTitle').innerText = c.titulo;
             document.getElementById('artistName').innerText = c.artista;
             document.getElementById('trackImg').src = c.img;
-            document.documentElement.style.setProperty('--accent', c.color);
             
-            player.play().catch(err => console.log("Esperando interacción..."));
+            player.play();
             document.getElementById('playBtn').innerText = "⏸";
             actualizarLista();
         };
@@ -170,13 +227,15 @@
             else { player.pause(); document.getElementById('playBtn').innerText = "▶"; }
         };
 
-        window.siguiente = () => window.cargarCancion((indiceActual + 1) % canciones.length);
-        window.anterior = () => window.cargarCancion((indiceActual - 1 + canciones.length) % canciones.length);
-
+        window.siguiente = () => window.cargarCancion(indiceActual + 1);
+        window.anterior = () => window.cargarCancion(indiceActual - 1);
+        window.setVolume = (v) => player.volume = v;
         window.seek = (e) => {
-            const rect = document.querySelector('.progress-container').getBoundingClientRect();
+            const rect = document.querySelector('.bar-container').getBoundingClientRect();
             player.currentTime = ((e.clientX - rect.left) / rect.width) * player.duration;
         };
+
+        player.onended = () => setTimeout(() => window.siguiente(), 1000);
 
         player.ontimeupdate = () => {
             if (player.duration) {
@@ -188,22 +247,11 @@
         };
 
         function formatTime(s) {
-            const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+            const m = Math.floor(s/60), sec = Math.floor(s%60);
             return `${m}:${sec < 10 ? '0' : ''}${sec}`;
         }
 
-        function actualizarLista() {
-            const list = document.getElementById('playlist');
-            list.innerHTML = "";
-            canciones.forEach((c, i) => {
-                const li = document.createElement('li');
-                li.className = `playlist-item ${i === indiceActual ? 'active' : ''}`;
-                li.innerHTML = `<strong>${c.titulo}</strong><br><small>${c.artista}</small>`;
-                li.onclick = () => window.cargarCancion(i);
-                list.appendChild(li);
-            });
-        }
-        
+        window.toggleMenu = (e) => { e.stopPropagation(); document.getElementById("dropdownMenu").classList.toggle("show"); };
         window.onclick = () => document.getElementById("dropdownMenu").classList.remove("show");
     </script>
 </body>
